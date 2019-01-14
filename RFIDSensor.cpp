@@ -1,5 +1,3 @@
-#include <SPI.h>
-#include <MFRC522.h>
 #include "RFIDSensor.h"
 
 RFIDSensor::RFIDSensor(RFIDPins* pins)
@@ -40,4 +38,3 @@ Gesture RFIDSensor::getGestureByStatus(bool status)
 {
   return !status ? GESTURE_UP : GESTURE_DOWN;
 }
-
