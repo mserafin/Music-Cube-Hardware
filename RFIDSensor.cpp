@@ -5,13 +5,13 @@ RFIDSensor::RFIDSensor(RFIDPins* pins)
   this->pins = pins;
 }
 
-void RFIDSensor::begin(void (*callback)(Gesture gesture, byte *buffer, byte bufferSize))
+void RFIDSensor::begin(CubeSensorChangeCallback callback)
 {
   SPI.begin();
   MFRC522 sensor(pins->SS, pins->RST);
   sensor.PCD_Init();
 
-  onChange = callback;
+  _cubeSensorChangeCallback = callback;
 }
 
 void RFIDSensor::refresh()
@@ -22,19 +22,32 @@ void RFIDSensor::refresh()
 
   story.lastIntervalMillis = millis();
 
-  if (sensor.PICC_IsNewCardPresent() &&
-      sensor.PICC_ReadCardSerial()) {
+  if (sensor.PICC_IsNewCardPresent() && sensor.PICC_ReadCardSerial()) {
     story.lastReadMillis = millis();
   }
 
-  bool status = !DateUtils::isDelaying(story.lastReadMillis, DELAY * 2);
-  if (status != story.lastStatus) {
-    story.lastStatus = status;
-    onChange(getGestureByStatus(status), sensor.uid.uidByte, sensor.uid.size);
+  Gesture gesture = getGestureByStatus(!DateUtils::isDelaying(story.lastReadMillis, DELAY << 1));
+  if (isCubeSensorChange(gesture))
+  {
+    _cubeSensorChangeCallback(gesture, sensor.uid.uidByte, sensor.uid.size);
+
+    uint8_t isSkip = !DateUtils::isDelaying(story.lastChangeMillis, DELAY << 2);
+    if (isSkip && gesture == GESTURE_DOWN)
+    {
+      _cubeSensorChangeCallback(GESTURE_SKIP, sensor.uid.uidByte, sensor.uid.size);
+    }
+
+    story.lastGesture = gesture;
+    story.lastChangeMillis = millis();
   }
 }
 
-Gesture RFIDSensor::getGestureByStatus(bool status)
+uint8_t RFIDSensor::isCubeSensorChange(Gesture gesture)
+{
+  return story.lastReadMillis >= (DELAY << 2) && story.lastGesture != gesture;
+}
+
+Gesture RFIDSensor::getGestureByStatus(uint8_t status)
 {
   return !status ? GESTURE_UP : GESTURE_DOWN;
 }

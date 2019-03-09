@@ -3,25 +3,22 @@
 #include "LightEffect.h"
 #include "Convert.h"
 
-const byte SS_PIN = 10;
-const byte RST_PIN = 9;
+const uint8_t SS_PIN = 10;
+const uint8_t RST_PIN = 9;
 
-const byte LED_PIN = 2;
-const byte LED_COUNT = 24;
+const uint8_t LED_PIN = 2;
+const uint8_t LED_COUNT = 24;
 
 RFIDPins pins = {SS_PIN, RST_PIN};
 CubeSensor* cubeSensor = new RFIDSensor(&pins);
 LightEffect<LED_PIN>* lightEffect = new LightEffect<LED_PIN>(LED_COUNT);
 
-bool first = true;
-
 void setup()
 {
-  PololuLedStripBase::interruptFriendly = true;
-
-  Serial.begin(9600);
-  Serial.println("Odczytywanie kodu RFID");
-  cubeSensor->begin(cubeChangeState);
+  while (!Serial);
+  Serial.begin(115200);
+  Serial.println("Reading the RFID code");  
+  cubeSensor->begin(cubeSensorChange);
 }
 
 void loop()
@@ -30,25 +27,23 @@ void loop()
   lightEffect->refresh();
 }
 
-void cubeChangeState(Gesture gesture, byte *buffer, byte bufferSize)
+void cubeSensorChange(Gesture gesture, uint8_t *buffer, uint8_t bufferSize)
 {
   String code = Convert::bytesToHex(buffer, bufferSize);
   Serial.print("Code: ");
   Serial.println(code);
 
-  if (!first) {
-    Serial.print("GESTURE_UP: ");
-    Serial.println(gesture == GESTURE_UP);
-    if (gesture == GESTURE_UP) {
-      lightEffect->turnOff();
-    }
+  if (gesture == GESTURE_UP) {
+    Serial.println("GESTURE_UP");
+    lightEffect->turnOff();
+  }
 
-    Serial.print("GESTURE_DOWN: ");
-    Serial.println(gesture == GESTURE_DOWN);
-    if (gesture == GESTURE_DOWN) {
-      lightEffect->turnOn();
-    }
-  } else {
-    first = false;
+  if (gesture == GESTURE_DOWN) {
+    Serial.println("GESTURE_DOWN");
+    lightEffect->turnOn();
+  }
+
+  if (gesture == GESTURE_SKIP) {
+    Serial.println("GESTURE_SKIP");
   }
 }

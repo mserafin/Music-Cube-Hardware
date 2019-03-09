@@ -7,31 +7,34 @@
 
 struct RFIDPins
 {
-  byte SS;
-  byte RST;
+  uint8_t SS;
+  uint8_t RST;
 };
 
 class RFIDSensor : public CubeSensor {
   public:
     RFIDSensor(RFIDPins* pins);
-    void begin(void (*callback)(Gesture gesture, byte *buffer, byte bufferSize)) override;
+    void begin(CubeSensorChangeCallback callback) override;
     void refresh() override;
 
   protected:
     MFRC522 sensor;
 
   private:
-    const int DELAY = 500; //[ms]
+    const uint16_t DELAY = 250; //[ms]
 
     const RFIDPins* pins;
 
     struct Store {
-      bool lastStatus = true;
-      unsigned long lastReadMillis = 0L;
-      unsigned long lastIntervalMillis = 0L;
+      Gesture lastGesture = NULL;
+      uint32_t lastReadMillis = 0L;
+      uint32_t lastChangeMillis = 0L;
+      uint32_t lastIntervalMillis = 0L;
     } story;
 
-    void (*onChange)(Gesture gesture, byte *buffer, byte bufferSize);
+    CubeSensorChangeCallback _cubeSensorChangeCallback;
 
-    Gesture getGestureByStatus(bool status);
+    Gesture getGestureByStatus(uint8_t status);
+
+    uint8_t isCubeSensorChange(Gesture gesture);
 };

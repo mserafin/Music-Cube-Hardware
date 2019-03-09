@@ -4,5 +4,5 @@
 class DateUtils
 {
   public:
-    static bool isDelaying(unsigned long timeInMillis, int interval);
+    static uint8_t isDelaying(uint32_t timeInMillis, uint16_t interval);
 };

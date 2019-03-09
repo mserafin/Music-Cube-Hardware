@@ -4,8 +4,8 @@
 class Convert
 {
   public:
-    static unsigned long bytesToInt(byte *buffer, byte bufferSize);
-    static String intToHex(unsigned long value);
-    static String bytesToHex(byte *buffer, byte bufferSize);
-    static String bytesToDec(byte *buffer, byte bufferSize);
+    static uint32_t bytesToInt(uint8_t *buffer, uint8_t bufferSize);
+    static String intToHex(uint32_t value);
+    static String bytesToHex(uint8_t *buffer, uint8_t bufferSize);
+    static String bytesToDec(uint8_t *buffer, uint8_t bufferSize);
 };

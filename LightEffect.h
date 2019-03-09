@@ -3,16 +3,16 @@
 #include "DateUtils.h"
 #include "PololuLedStrip.h"
 
-template<unsigned char T> class LightEffect : public PololuLedStrip<T>
+template<uint8_t T> class LightEffect : public PololuLedStrip<T>
 {
   public:
-    LightEffect(unsigned int count)
+    LightEffect(uint8_t count)
     {
-      ledCount = count;
+      countLEDs = count;
       delete[] colors;
-      colors = new rgb_color[ledCount];
+      colors = new rgb_color[countLEDs];
     };
-
+    
     void turnOn() {
       story.effect = EFFECT_ON;
     };
@@ -22,21 +22,21 @@ template<unsigned char T> class LightEffect : public PololuLedStrip<T>
     }
 
     void refresh() {
-      if (!DateUtils::isDelaying(story.lastMillis, delay)) {
+      if (!DateUtils::isDelaying(story.lastMillis, DELAY)) {
         return;
       }
 
-      if (story.effect == EFFECT_ON && story.index >= 0 && story.index < ledCount) {
-        turnOnByIndex();
+      if (story.effect == EFFECT_ON && story.index >= 0 && story.index < countLEDs) {
+        turnOnByIndex(story.index);
         story.index += 1;
       }
 
-      if (story.effect == EFFECT_OFF && story.index > 0 && story.index <= ledCount ) {
+      if (story.effect == EFFECT_OFF && story.index > 0 && story.index <= countLEDs ) {
         story.index -= 1;
-        turnOffByIndex();
+        turnOffByIndex(story.index);
       }
 
-      if (story.effect == EFFECT_ON && story.index == ledCount) {
+      if (story.effect == EFFECT_ON && story.index == countLEDs) {
         active();
       }
 
@@ -44,43 +44,43 @@ template<unsigned char T> class LightEffect : public PololuLedStrip<T>
     };
 
   private:
-    unsigned int delay = 10;
-    unsigned int ledCount;
+    const uint8_t DELAY = 10;
+    uint8_t countLEDs = 0;
     rgb_color * colors;
 
-    enum Effect : byte {
+    enum Effect : uint8_t {
       EFFECT_ON,
       EFFECT_OFF
     };
 
     struct Store {
-      unsigned long lastMillis = 0L;
-      byte index;
+      uint32_t lastMillis = 0L;
+      uint8_t index = 0;
       Effect effect;
     } story;
 
-    void turnOnByIndex()
+    void turnOnByIndex(uint8_t index)
     {
-      unsigned long time = millis() >> 2;
-      colors[story.index] = calculateToRgb(story.index, time);
-      this->write(colors, ledCount);
+      uint32_t time = millis() >> 2;
+      colors[index] = calculateToRgb(story.index, time);
+      this->write(colors, countLEDs);
     }
 
-    void turnOffByIndex()
+    void turnOffByIndex(uint8_t index)
     {
-      colors[story.index] = hsvToRgb(0, 0, 0);
-      this->write(colors, ledCount);
+      colors[index] = hsvToRgb(0, 0, 0);
+      this->write(colors, countLEDs);
     }
 
     void active()
     {
-      unsigned long time = millis() >> 2;
-      for (byte i = 0; i < ledCount; i++)
+      uint32_t time = millis() >> 2;
+      for (uint8_t i = 0; i < countLEDs; i++)
       {
         colors[i] = calculateToRgb(i, time);
       }
 
-      this->write(colors, ledCount);
+      this->write(colors, countLEDs);
     }
 
     rgb_color hsvToRgb(uint16_t h, uint8_t s, uint8_t v) {
@@ -100,8 +100,8 @@ template<unsigned char T> class LightEffect : public PololuLedStrip<T>
       return rgb_color(r, g, b);
     }
 
-    rgb_color calculateToRgb(byte i, unsigned long time) {
-      byte x = (time >> 2) - (i << 3);
+    rgb_color calculateToRgb(uint8_t i, uint32_t time) {
+      uint8_t x = (time >> 2) - (i << 3);
       return hsvToRgb((uint32_t)x * 359 / 256, 255, 255);
     }
 };

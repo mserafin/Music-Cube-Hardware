@@ -1,14 +1,15 @@
 #pragma once
 
-enum Gesture : byte {
+enum Gesture : uint8_t {
   GESTURE_UP,
   GESTURE_DOWN,
-  GESTURE_NEXT,
-  GESTURE_PREV
+  GESTURE_SKIP
 };
+
+typedef void (*CubeSensorChangeCallback)(Gesture gesture, uint8_t *buffer, uint8_t bufferSize);
 
 class CubeSensor {
   public:
-    virtual void begin(void (*callback)(Gesture gesture, byte *buffer, byte bufferSize));
+    virtual void begin(CubeSensorChangeCallback callback);
     virtual void refresh();
 };

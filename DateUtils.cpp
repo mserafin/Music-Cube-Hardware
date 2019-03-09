@@ -1,6 +1,6 @@
 #include "DateUtils.h"
 
-bool DateUtils::isDelaying(unsigned long timeInMillis, int interval)
+uint8_t DateUtils::isDelaying(uint32_t timeInMillis, uint16_t interval)
 {
   return (millis() - timeInMillis) > interval;
 }

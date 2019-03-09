@@ -1,34 +1,33 @@
 #include "Convert.h"
 
-unsigned long Convert::bytesToInt(byte *buffer, byte bufferSize)
+uint32_t Convert::bytesToInt(uint8_t *buffer, uint8_t bufferSize)
 {
-  unsigned long accum = 0L;
-  for (byte i = 0; i < bufferSize; i++) {
+  uint32_t accum = 0L;
+  for (uint8_t i = 0; i < bufferSize; i++) {
     accum <<= 8;
     accum |= (buffer[i] & 0xFF);
   }
   return accum;
 }
 
-String Convert::intToHex(unsigned long value) {
+String Convert::intToHex(uint32_t value) {
   return String(value, HEX);
 }
 
-String Convert::bytesToHex(byte *buffer, byte bufferSize) {
+String Convert::bytesToHex(uint8_t *buffer, uint8_t bufferSize) {
   String accum;
-  for (byte i = 0; i < bufferSize; i++) {
+  for (uint8_t i = 0; i < bufferSize; i++) {
     accum += buffer[i] < 0x10 ? "0" : "";
     accum += String(buffer[i], HEX);
   }
   return accum;
 }
 
-String Convert::bytesToDec(byte *buffer, byte bufferSize) {
+String Convert::bytesToDec(uint8_t *buffer, uint8_t bufferSize) {
   String accum;
-  for (byte i = 0; i < bufferSize; i++) {
+  for (uint8_t i = 0; i < bufferSize; i++) {
     accum += buffer[i] < 0x10 ? "0" : "";
     accum += String(buffer[i], DEC);
   }
   return accum;
 }
-
