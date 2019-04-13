@@ -7,8 +7,9 @@ RFIDSensor::RFIDSensor(RFIDPins* pins)
 
 void RFIDSensor::begin(CubeSensorChangeCallback callback)
 {
-  SPI.begin();
   MFRC522 sensor(pins->SS, pins->RST);
+  
+  SPI.begin();
   sensor.PCD_Init();
 
   _cubeSensorChangeCallback = callback;
@@ -20,10 +21,10 @@ void RFIDSensor::refresh()
     return;
   }
 
-  story.lastIntervalMillis = millis();
+  story.lastIntervalMillis = DateUtils::now();
 
   if (sensor.PICC_IsNewCardPresent() && sensor.PICC_ReadCardSerial()) {
-    story.lastReadMillis = millis();
+    story.lastReadMillis = DateUtils::now();
   }
 
   Gesture gesture = getGestureByStatus(!DateUtils::isDelaying(story.lastReadMillis, DELAY << 1));
@@ -38,7 +39,7 @@ void RFIDSensor::refresh()
     }
 
     story.lastGesture = gesture;
-    story.lastChangeMillis = millis();
+    story.lastChangeMillis = DateUtils::now();
   }
 }
 

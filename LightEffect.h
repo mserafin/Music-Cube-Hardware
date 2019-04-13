@@ -40,7 +40,7 @@ template<uint8_t T> class LightEffect : public PololuLedStrip<T>
         active();
       }
 
-      story.lastMillis = millis();
+      story.lastMillis = DateUtils::now();
     };
 
   private:
@@ -61,7 +61,7 @@ template<uint8_t T> class LightEffect : public PololuLedStrip<T>
 
     void turnOnByIndex(uint8_t index)
     {
-      uint32_t time = millis() >> 2;
+      uint32_t time = DateUtils::now() >> 2;
       colors[index] = calculateToRgb(story.index, time);
       this->write(colors, countLEDs);
     }
@@ -74,7 +74,7 @@ template<uint8_t T> class LightEffect : public PololuLedStrip<T>
 
     void active()
     {
-      uint32_t time = millis() >> 2;
+      uint32_t time = DateUtils::now() >> 2;
       for (uint8_t i = 0; i < countLEDs; i++)
       {
         colors[i] = calculateToRgb(i, time);

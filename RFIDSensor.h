@@ -26,7 +26,7 @@ class RFIDSensor : public CubeSensor {
     const RFIDPins* pins;
 
     struct Store {
-      Gesture lastGesture = NULL;
+      Gesture lastGesture;
       uint32_t lastReadMillis = 0L;
       uint32_t lastChangeMillis = 0L;
       uint32_t lastIntervalMillis = 0L;

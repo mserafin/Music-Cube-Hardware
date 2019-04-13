@@ -1,17 +1,17 @@
 #include "CubeSensor.h"
 #include "RFIDSensor.h"
-#include "LightEffect.h"
+//#include "LightEffect.h"
 #include "Convert.h"
 
-const uint8_t SS_PIN = 10;
-const uint8_t RST_PIN = 9;
+const uint8_t SS_PIN = 8;
+const uint8_t RST_PIN = 3;
 
-const uint8_t LED_PIN = 2;
+const uint8_t LED_PIN = 4;
 const uint8_t LED_COUNT = 24;
 
 RFIDPins pins = {SS_PIN, RST_PIN};
 CubeSensor* cubeSensor = new RFIDSensor(&pins);
-LightEffect<LED_PIN>* lightEffect = new LightEffect<LED_PIN>(LED_COUNT);
+//LightEffect<LED_PIN>* lightEffect = new LightEffect<LED_PIN>(LED_COUNT);
 
 void setup()
 {
@@ -24,7 +24,7 @@ void setup()
 void loop()
 {
   cubeSensor->refresh();
-  lightEffect->refresh();
+//  lightEffect->refresh();
 }
 
 void cubeSensorChange(Gesture gesture, uint8_t *buffer, uint8_t bufferSize)
@@ -35,12 +35,12 @@ void cubeSensorChange(Gesture gesture, uint8_t *buffer, uint8_t bufferSize)
 
   if (gesture == GESTURE_UP) {
     Serial.println("GESTURE_UP");
-    lightEffect->turnOff();
+//    lightEffect->turnOff();
   }
 
   if (gesture == GESTURE_DOWN) {
     Serial.println("GESTURE_DOWN");
-    lightEffect->turnOn();
+//    lightEffect->turnOn();
   }
 
   if (gesture == GESTURE_SKIP) {
