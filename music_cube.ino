@@ -1,27 +1,36 @@
+#include "WiFiManager.h"
+#include "HttpManager.h"
 #include "CubeSensor.h"
 #include "RFIDSensor.h"
 #include "LightEffect.h"
 #include "Convert.h"
+#include "Config.h"
 
-const uint8_t SS_PIN = 8;
-const uint8_t RST_PIN = 3;
+GENConfig   configGen;
+APIConfig   configApi;
+LEDConfig   configLed;
+RFIDConfig  configRfid;
 
-const uint8_t LED_PIN = 4;
-const uint8_t LED_COUNT = 24;
-const uint8_t LED_BRIGHTNESS = 25;
+HTTPApi api = {configApi.HOST, configApi.PORT, configGen.DEVICE_NAME};
+HttpManager* httpManager = new HttpManager(&api);
 
-RFIDPins pins = {SS_PIN, RST_PIN};
+RFIDPins pins = {configRfid.SS_PIN, configRfid.RST_PIN};
 CubeSensor* cubeSensor = new RFIDSensor(&pins);
-LightEffect* lightEffect = new LightEffect(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+LightEffect* lightEffect = new LightEffect(configLed.COUNT, configLed.PIN, NEO_GRB + NEO_KHZ800);
 
 void setup()
 {
   Serial.begin(115200);
-  
+  Serial.println("CubeSensor:setup");
+
+  WiFiManager wifiManager;
+  wifiManager.autoConnect(configGen.AP_NAME, configGen.AP_PASSWORD);
+
   cubeSensor->begin(cubeSensorChange);
-  
+
   lightEffect->begin();
-  lightEffect->setBrightness(LED_BRIGHTNESS);
+  lightEffect->setBrightness(configLed.BRIGHTNESS);
 }
 
 void loop()
@@ -32,21 +41,24 @@ void loop()
 
 void cubeSensorChange(Gesture gesture, uint8_t *buffer, uint8_t bufferSize)
 {
-  String code = Convert::bytesToHex(buffer, bufferSize);
-  Serial.print("Code: ");
-  Serial.println(code);
+  String tag = Convert::bytesToHex(buffer, bufferSize);
+  Serial.print("Tag: ");
+  Serial.println(tag);
 
   if (gesture == GESTURE_UP) {
     Serial.println("GESTURE_UP");
     lightEffect->turnOff();
+    httpManager->pause();
   }
 
   if (gesture == GESTURE_DOWN) {
     Serial.println("GESTURE_DOWN");
     lightEffect->turnOn();
+    httpManager->play(tag);
   }
 
   if (gesture == GESTURE_SKIP) {
     Serial.println("GESTURE_SKIP");
+    httpManager->next();
   }
 }
